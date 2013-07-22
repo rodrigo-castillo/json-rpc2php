@@ -83,12 +83,33 @@ class Server {
 	 * @param  string $password Password
 	 * @return Bool             Return true
 	 */
-	public function registerUser($user,$password){
-		$this->users[$user] = $password;
-		foreach ($this->users as $user => $pass){
-		}
+	public function registerUser($user,$password, $hosts = array()){
+		$this->users[$user] = array(
+			'username'	=> $user, 
+			'password'	=> $password,
+			'hosts'		=> $hosts
+		);
 		return true;
 	}
+
+	static public function is_allowed_host($allowed_hosts = array(), $ip = null, $host = null) {
+		if($ip === null) 
+			$ip = $_SERVER['REMOTE_ADDR'];
+		if($host === null)
+			$host = $_SERVER['HTTP_HOST'];
+
+		$allowed_hosts[] = '127.0.0.1';
+		foreach($allowed_hosts AS $allowed_host) {
+			#handle wildcards
+			error_log($allowed_host . ' ' . $host . ' ' . $ip);
+			
+			if(fnmatch($allowed_host, $host, FNM_CASEFOLD) || fnmatch($allowed_host, $ip, FNM_CASEFOLD)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Handles the authentication
 	 * @param  Array $HTTPHeaders Contains the apache_request_headers()
@@ -98,7 +119,16 @@ class Server {
 			$HTTPHeaders[strtolower($i)] = $c;
 		}
 		if (isset($HTTPHeaders['x-rpc-auth-username']) && isset($HTTPHeaders['x-rpc-auth-password'])){
-			if ($this->users[$HTTPHeaders['x-rpc-auth-username']] == $HTTPHeaders['x-rpc-auth-password']){
+
+			$username = $HTTPHeaders['x-rpc-auth-username'];
+			$password = $HTTPHeaders['x-rpc-auth-password'];
+			if(	count($this->users[$username]['hosts'])
+				&& !self::is_allowed_host($this->users[$username]['hosts'])
+			) {
+				throw new \Exception($this->errorCodes['authenticationError']);
+			}
+
+			if ($this->users[$username]['password'] == $password){
 				session_start();
 				$sid = session_id();
 				$_SESSION["ip"] = $_SERVER["REMOTE_ADDR"];
