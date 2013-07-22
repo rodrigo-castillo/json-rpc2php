@@ -92,7 +92,7 @@ class Server {
 		return true;
 	}
 
-	static public function match_allowed_hosts($allowed_hosts = array(), $ip = null, $host = null) {
+	static public function is_allowed_host($allowed_hosts = array(), $ip = null, $host = null) {
 		if($ip === null) 
 			$ip = $_SERVER['REMOTE_ADDR'];
 		if($host === null)
@@ -123,7 +123,7 @@ class Server {
 			$username = $HTTPHeaders['x-rpc-auth-username'];
 			$password = $HTTPHeaders['x-rpc-auth-password'];
 			if(	count($this->users[$username]['hosts'])
-				&& !self::match_allowed_hosts($this->users[$username]['hosts'])
+				&& !self::is_allowed_host($this->users[$username]['hosts'])
 			) {
 				throw new \Exception($this->errorCodes['authenticationError']);
 			}
