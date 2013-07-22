@@ -83,11 +83,12 @@ class Server {
 	 * @param  string $password Password
 	 * @return Bool             Return true
 	 */
-	public function registerUser($user,$password, $hosts = array()){
+	public function registerUser($user,$password, $hosts = array(), $methods = array()){
 		$this->users[$user] = array(
 			'username'	=> $user, 
 			'password'	=> $password,
-			'hosts'		=> $hosts
+			'hosts'		=> $hosts,
+			'methods'	=> $methods,
 		);
 		return true;
 	}
@@ -99,11 +100,17 @@ class Server {
 			$host = $_SERVER['HTTP_HOST'];
 
 		$allowed_hosts[] = '127.0.0.1';
-		foreach($allowed_hosts AS $allowed_host) {
-			#handle wildcards
-			error_log($allowed_host . ' ' . $host . ' ' . $ip);
-			
+		foreach($allowed_hosts AS $allowed_host) {			
 			if(fnmatch($allowed_host, $host, FNM_CASEFOLD) || fnmatch($allowed_host, $ip, FNM_CASEFOLD)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	static public function is_allowed_method(array $allowed_methods, $extension, $method) {
+		foreach($allowed_methods AS $allowed_method) {
+			if(fnmatch($allowed_method, $extension . '.' .$method, FNM_CASEFOLD)) {
 				return true;
 			}
 		}
@@ -122,8 +129,15 @@ class Server {
 
 			$username = $HTTPHeaders['x-rpc-auth-username'];
 			$password = $HTTPHeaders['x-rpc-auth-password'];
+
 			if(	count($this->users[$username]['hosts'])
 				&& !self::is_allowed_host($this->users[$username]['hosts'])
+			) {
+				throw new \Exception($this->errorCodes['authenticationError']);
+			}
+
+			if( count($this->users[$username]['methods'])
+				&&	!self::is_allowed_method($this->users[$username]['methods'], $this->extension, $this->request['method'])
 			) {
 				throw new \Exception($this->errorCodes['authenticationError']);
 			}
@@ -131,6 +145,7 @@ class Server {
 			if ($this->users[$username]['password'] == $password){
 				session_start();
 				$sid = session_id();
+				$_SESSION["username"] = $username;
 				$_SESSION["ip"] = $_SERVER["REMOTE_ADDR"];
 				header('x-RPC-Auth-Session: ' . $sid);
 			} else {
@@ -140,6 +155,11 @@ class Server {
 			session_id($HTTPHeaders['x-rpc-auth-session']);
 			session_start();
 			if ($_SESSION['ip'] == $_SERVER["REMOTE_ADDR"]){
+				if( count($this->users[$_SESSION["username"]]['methods'])
+					&&	!self::is_allowed_method($this->users[$_SESSION["username"]]['methods'], $this->extension, $this->request['method'])
+				) {
+					throw new \Exception($this->errorCodes['authenticationError']);
+				}
 				return true;
 			} else {
 				throw new \Exception($this->errorCodes['authenticationError']);
