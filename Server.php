@@ -109,6 +109,7 @@ class Server {
 	}
 
 	static public function is_allowed_method(array $allowed_methods, $extension, $method) {
+		$allowed_methods[] = "rpc.*";
 		foreach($allowed_methods AS $allowed_method) {
 			if(fnmatch($allowed_method, $extension . '.' .$method, FNM_CASEFOLD)) {
 				return true;
