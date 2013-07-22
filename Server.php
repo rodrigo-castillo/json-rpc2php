@@ -102,10 +102,8 @@ class Server {
 		foreach($allowed_hosts AS $allowed_host) {
 			#handle wildcards
 			error_log($allowed_host . ' ' . $host . ' ' . $ip);
-			if(strpos($allowed_host, '*') !== false) {
-
-			}
-			elseif (strcasecmp($allowed_host, $host) == 0 || strcasecmp($allowed_host, $ip) == 0) {
+			
+			if(fnmatch($allowed_host, $host, FNM_CASEFOLD) || fnmatch($allowed_host, $ip, FNM_CASEFOLD)) {
 				return true;
 			}
 		}
