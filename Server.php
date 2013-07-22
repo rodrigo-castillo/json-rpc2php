@@ -93,7 +93,7 @@ class Server {
 		return true;
 	}
 
-	static public function is_allowed_host($allowed_hosts = array(), $ip = null, $host = null) {
+	static public function isAllowedHost($allowed_hosts = array(), $ip = null, $host = null) {
 		if($ip === null) 
 			$ip = $_SERVER['REMOTE_ADDR'];
 		if($host === null)
@@ -108,7 +108,7 @@ class Server {
 		return false;
 	}
 
-	static public function is_allowed_method(array $allowed_methods, $extension, $method) {
+	static public function isAllowedMethod(array $allowed_methods, $extension, $method) {
 		$allowed_methods[] = "rpc.*";
 		foreach($allowed_methods AS $allowed_method) {
 			if(fnmatch($allowed_method, $extension . '.' .$method, FNM_CASEFOLD)) {
@@ -132,13 +132,13 @@ class Server {
 			$password = $HTTPHeaders['x-rpc-auth-password'];
 
 			if(	count($this->users[$username]['hosts'])
-				&& !self::is_allowed_host($this->users[$username]['hosts'])
+				&& !self::isAllowedHost($this->users[$username]['hosts'])
 			) {
 				throw new \Exception($this->errorCodes['authenticationError']);
 			}
 
 			if( count($this->users[$username]['methods'])
-				&&	!self::is_allowed_method($this->users[$username]['methods'], $this->extension, $this->request['method'])
+				&&	!self::isAllowedMethod($this->users[$username]['methods'], $this->extension, $this->request['method'])
 			) {
 				throw new \Exception($this->errorCodes['authenticationError']);
 			}
@@ -157,7 +157,7 @@ class Server {
 			session_start();
 			if ($_SESSION['ip'] == $_SERVER["REMOTE_ADDR"]){
 				if( count($this->users[$_SESSION["username"]]['methods'])
-					&&	!self::is_allowed_method($this->users[$_SESSION["username"]]['methods'], $this->extension, $this->request['method'])
+					&&	!self::isAllowedMethod($this->users[$_SESSION["username"]]['methods'], $this->extension, $this->request['method'])
 				) {
 					throw new \Exception($this->errorCodes['authenticationError']);
 				}
@@ -198,6 +198,7 @@ class Server {
 	 	}
 	 	return true;
 	 }
+
 	/**
 	 * This function validates the incoming json string
 	 * - checks the request method
@@ -208,7 +209,6 @@ class Server {
 	 * @return boolean
 	 */
 	private function validate() {
-
 
 		try {
 			if ($_SERVER['REQUEST_METHOD'] != 'POST' || empty($_SERVER['CONTENT_TYPE']) || strpos($_SERVER['CONTENT_TYPE'], 'application/json') === false) {
