@@ -199,6 +199,15 @@ class Server {
 	 	return true;
 	 }
 
+	 protected function getRequestMethod() {
+		$requestMethod = explode('.',$this->request['method']);
+		$this->extension = $requestMethod[0];
+
+		$this->request['method'] = $requestMethod[1];
+
+		return $requestMethod;
+	 }
+
 	/**
 	 * This function validates the incoming json string
 	 * - checks the request method
@@ -219,12 +228,10 @@ class Server {
 				throw new \Exception($this->errorCodes['parseError']);
 			}
 
-			$requestMethod = explode('.',$this->request['method']);
-			$this->extension = $requestMethod[0];
+			$this->getRequestMethod();
 			if (!isset($this->classes[$this->extension]) && $this->extension != "rpc"){
 				throw new \Exception($this->errorCodes['extensionNotFound']);
 			}
-			$this->request['method'] = $requestMethod[1];
 			if (!method_exists($this->classes[$this->extension],$this->request['method']) && $this->extension != "rpc"){
 				throw new \Exception($this->errorCodes['methodNotFound']);
 			};
