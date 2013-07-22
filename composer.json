@@ -1,0 +1,20 @@
+{
+    "name": "jsonrpc2php",
+    "type": "library",
+    "description": "json-rpc2php is a flexible PHP JSON-RPC2 server",
+    "keywords": [],
+    "license": "GPLv2",
+    "authors": [
+        {
+            "name": "Stijn Van Campenhout",
+            "email": "stijn.vancampenhout@gmail.com"
+        },
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "autoload": {
+        "psr-0": { "jsonrpc2": "" }
+    },
+    "target-dir": "jsonrpc2"
+}

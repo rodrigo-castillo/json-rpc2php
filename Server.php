@@ -29,7 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * @author stijn <stijn.vancampenhout@gmail.com>
  * @version  1.2
  */
-class jsonRPCServer {
+
+namespace jsonrpc2php;
+
+class Server {
 	public $classes = array();
 	public $request;
 	public $extension;
@@ -101,7 +104,7 @@ class jsonRPCServer {
 				$_SESSION["ip"] = $_SERVER["REMOTE_ADDR"];
 				header('x-RPC-Auth-Session: ' . $sid);
 			} else {
-				throw new Exception($this->errorCodes['authenticationError']);
+				throw new \Exception($this->errorCodes['authenticationError']);
 			}
 		} else if (isset($HTTPHeaders['x-rpc-auth-session'])){
 			session_id($HTTPHeaders['x-rpc-auth-session']);
@@ -109,10 +112,10 @@ class jsonRPCServer {
 			if ($_SESSION['ip'] == $_SERVER["REMOTE_ADDR"]){
 				return true;
 			} else {
-				throw new Exception($this->errorCodes['authenticationError']);
+				throw new \Exception($this->errorCodes['authenticationError']);
 			}
 		} else {
-				throw new Exception($this->errorCodes['authenticationError']);
+				throw new \Exception($this->errorCodes['authenticationError']);
 		} 
 
 	}
@@ -158,20 +161,21 @@ class jsonRPCServer {
 
 		try {
 			if ($_SERVER['REQUEST_METHOD'] != 'POST' || empty($_SERVER['CONTENT_TYPE']) || strpos($_SERVER['CONTENT_TYPE'], 'application/json') === false) {
-				throw new Exception($this->errorCodes['invalidRequest']);
+				throw new \Exception($this->errorCodes['invalidRequest']);
 			}
 			$this->request = json_decode(file_get_contents('php://input'),true);
 			if (empty($this->request)){
-				throw new Exception($this->errorCodes['parseError']);
+				throw new \Exception($this->errorCodes['parseError']);
 			}
+
 			$requestMethod = explode('.',$this->request['method']);
 			$this->extension = $requestMethod[0];
 			if (!isset($this->classes[$this->extension]) && $this->extension != "rpc"){
-				throw new Exception($this->errorCodes['extensionNotFound']);
+				throw new \Exception($this->errorCodes['extensionNotFound']);
 			}
 			$this->request['method'] = $requestMethod[1];
 			if (!method_exists($this->classes[$this->extension],$this->request['method']) && $this->extension != "rpc"){
-				throw new Exception($this->errorCodes['methodNotFound']);
+				throw new \Exception($this->errorCodes['methodNotFound']);
 			};
 	
 		} catch (Exception $e) {
@@ -257,7 +261,7 @@ class jsonRPCServer {
 			if (($result = @call_user_func_array(array($obj,$this->request['method']),$this->request['params'])) !== false) {
 				$this->ok((is_array($result)) ? $result : Array($result));
 			} else {
-				throw new Exception('Method function returned false.');
+				throw new \Exception('Method function returned false.');
 			}
 		} catch (Exception $e) {
 				$c = ($e->getCode() != 0) ? $e->getCode : $this->errorCodes['internalError'];
