@@ -126,11 +126,17 @@ class Server {
 		foreach($HTTPHeaders as $i => $c){
 			$HTTPHeaders[strtolower($i)] = $c;
 		}
-		if (isset($HTTPHeaders['x-rpc-auth-username']) && isset($HTTPHeaders['x-rpc-auth-password'])){
 
+		if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+			$username = $_SERVER['PHP_AUTH_USER'];
+			$password = $_SERVER['PHP_AUTH_PW'];	
+		}
+		elseif (isset($HTTPHeaders['x-rpc-auth-username']) && isset($HTTPHeaders['x-rpc-auth-password'])){
 			$username = $HTTPHeaders['x-rpc-auth-username'];
 			$password = $HTTPHeaders['x-rpc-auth-password'];
-
+		}
+		
+		if(isset($username)) {
 			if(	count($this->users[$username]['hosts'])
 				&& !self::isAllowedHost($this->users[$username]['hosts'])
 			) {
@@ -152,7 +158,8 @@ class Server {
 			} else {
 				throw new \Exception($this->errorCodes['authenticationError']);
 			}
-		} else if (isset($HTTPHeaders['x-rpc-auth-session'])){
+		}
+		else if (isset($HTTPHeaders['x-rpc-auth-session'])){
 			session_id($HTTPHeaders['x-rpc-auth-session']);
 			session_start();
 			if ($_SESSION['ip'] == $_SERVER["REMOTE_ADDR"]){
