@@ -302,7 +302,7 @@ class Server {
 	 * check if there is a response needed & sends the response
 	 *
 	 */
-	private function sendResponse(){
+	protected function sendResponse(){
 		if (!empty($this->request['id'])) { // notifications don't want response
 			header('content-type: application/json');
 			die( json_encode($this->response) );
