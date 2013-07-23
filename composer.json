@@ -1,5 +1,5 @@
 {
-    "name": "jsonrpc2php",
+    "name": "rodrigo-castillo/json-rpc2php",
     "type": "library",
     "description": "json-rpc2php is a flexible PHP JSON-RPC2 server",
     "keywords": [],
@@ -9,6 +9,10 @@
             "name": "Stijn Van Campenhout",
             "email": "stijn.vancampenhout@gmail.com"
         },
+        {
+            "name": "Rodrigo Castillo",
+            "email": "rodrigo@corp.sonic.net"
+        }
     ],
     "require": {
         "php": ">=5.3.3"
