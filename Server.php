@@ -285,7 +285,7 @@ class Server {
     } 
     return $convertedArray; 
   } 
-	private function ok($result){
+	protected function ok($result){
 					//print_r($result);
 					$this->response = array (
 						'jsonrpc'	=> '2.0',
