@@ -93,6 +93,10 @@ class Server {
 		return true;
 	}
 
+	public function __construct() {
+		
+	}
+
 	static public function isAllowedHost($allowed_hosts = array(), $ip = null, $host = null) {
 		if($ip === null) 
 			$ip = $_SERVER['REMOTE_ADDR'];
