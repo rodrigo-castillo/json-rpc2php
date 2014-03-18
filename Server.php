@@ -262,7 +262,7 @@ class Server {
 	 * @param string $c the error code
 	 * @param string $fmsg the full message of the error
 	 */
-	private function error($c,$fmsg=false){
+	protected function error($c,$fmsg=false){
 		$this->response = array (
 				'jsonrpc'	=> '2.0',
 				'id' => (isset($this->request['id'])) ? $this->request['id'] : NULL,
