@@ -235,11 +235,12 @@ class Server {
 				throw new \Exception($this->errorCodes['invalidRequest']);
 			}
 			$this->request = json_decode(file_get_contents('php://input'),true);
+
+			$this->getRequestMethod();
+
 			if (empty($this->request)){
 				throw new \Exception($this->errorCodes['parseError']);
 			}
-
-			$this->getRequestMethod();
 			if (!isset($this->classes[$this->extension]) && $this->extension != "rpc"){
 				throw new \Exception($this->errorCodes['extensionNotFound']);
 			}
