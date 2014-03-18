@@ -247,7 +247,7 @@ class Server {
 				throw new \Exception($this->errorCodes['methodNotFound']);
 			};
 	
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 				$this->error($e->getMessage());
 				$this->sendResponse();
 				return false;
@@ -326,13 +326,12 @@ class Server {
 				$this->rpcCalls();
 			}
 			$obj = $this->classes[$this->extension];
-		
 			if (($result = @call_user_func_array(array($obj,$this->request['method']),$this->request['params'])) !== false) {
 				$this->ok((is_array($result)) ? $result : Array($result));
 			} else {
 				throw new \Exception('Method function returned false.');
 			}
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 				$c = ($e->getCode() != 0) ? $e->getCode : $this->errorCodes['internalError'];
 				$this->error($c,$e->getMessage());
 		}
